@@ -1,5 +1,3 @@
-library gradient_progress;
-
 import 'dart:math';
 import 'package:flutter/material.dart';
 
@@ -11,6 +9,7 @@ class GradientCircularProgressIndicator extends StatelessWidget {
   final List<Color>? gradientColors;
   final List<double>? gradientStops;
   final double radius;
+  final double total;
 
   /// Constructor require progress [radius] & gradient color range [gradientColors]
   /// , option includes: circle width [strokeWidth], round support [strokeRound]
@@ -25,29 +24,37 @@ class GradientCircularProgressIndicator extends StatelessWidget {
     this.gradientStops,
     this.backgroundColor = Colors.transparent,
     this.value = 0,
+    this.total = 2 * pi,
   });
 
   @override
   Widget build(BuildContext context) {
-    var _colors = gradientColors;
-    if (_colors == null) {
-      Color color = Theme.of(context).accentColor;
-      _colors = [color, color];
-    }
-
     return Transform.rotate(
       angle: -pi / 2,
       child: CustomPaint(
         size: Size.fromRadius(radius),
         painter: _GradientCircularProgressPainter(
-            strokeWidth: strokeWidth,
-            strokeRound: strokeRound,
-            backgroundColor: backgroundColor,
-            gradientColors: _colors,
-            value: value,
-            radius: radius),
+          strokeWidth: strokeWidth,
+          strokeRound: strokeRound,
+          backgroundColor: backgroundColor,
+          gradientColors: _getColors(context),
+          gradientStops: gradientStops,
+          value: value,
+          total: total,
+          radius: radius,
+        ),
       ),
     );
+  }
+
+  List<Color> _getColors(BuildContext context) {
+    final parameterColors = gradientColors;
+    if (parameterColors != null) {
+      return parameterColors;
+    }
+
+    final color = Theme.of(context).colorScheme.secondary;
+    return [color, color];
   }
 }
 
@@ -59,7 +66,7 @@ class _GradientCircularProgressPainter extends CustomPainter {
     this.backgroundColor = Colors.transparent,
     required this.gradientColors,
     this.gradientStops,
-    this.total = 2 * pi,
+    required this.total,
     required this.radius,
   });
 
